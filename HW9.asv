@@ -146,46 +146,14 @@ display(['dy2 = ' num2str(dy2)]);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % PERIOD
-RSQ = X2.^2 + Y2.^2;
+RSQ = X.^2 + Y.^2;
 r   = 3.33*a;
 PER = RSQ <= r^2;
 PER = a*(1-PER) + 0.5*a*PER;
 
 % ANGLE
-x = [0 : Nx2-1]*dx2;
-y = [0 : Ny2-1]*dy2;
-[Yy,Xx] = meshgrid(y,x);
-THETA = atan2(Xx,Yy);
-THETA = flipud(fliplr(flipud(THETA)));
-THETA = THETA/degrees;
 
 % THRESHOLD
-thresh = linspace(0.15,0.35,Nx2*Ny2)';
-THRESH = ones(Nx2,Ny2);
-THRESH = thresh.*THRESH(:);
-THRESH = reshape(THRESH,Nx2,Ny2);
-THRESH = flipud(THRESH);
-
-% VISUALIZE
-figure('Color','w');
-subplot(131);
-imagesc(xa2,ya2,PER');
-colorbar;
-axis equal tight off
-title('PER');
-
-subplot(132);
-imagesc(xa2,ya2,THETA');
-colorbar;
-axis equal tight off
-title('THETA');
-
-subplot(133);
-imagesc(xa2,ya2,THRESH');
-colorbar;
-axis equal tight off
-title('THRESH');
-
 gth_dat = linspace(0,1,100);
 ff_dat  = 0*gth_dat;
 for n = 1 : length(gth_dat)
@@ -195,3 +163,6 @@ for n = 1 : length(gth_dat)
    % FILL FRACTION
    ff_dat(n) = sum(UCB(:))/(Nxu*Nyu);
 end
+
+% VISUA
+
