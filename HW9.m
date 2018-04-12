@@ -146,14 +146,14 @@ display(['dy2 = ' num2str(dy2)]);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % PERIOD
-RSQ = X2.^2 + Y2.^2;
+RSQ = X.^2 + Y.^2;
 r   = 3.33*a;
 PER = RSQ <= r^2;
 PER = a*(1-PER) + 0.5*a*PER;
 
 % ANGLE
-x = [0 : Nx2-1]*dx2;
-y = [0 : Ny2-1]*dy2;
+x = [0 : Nx-1]*dx;
+y = [0 : Ny-1]*dy;
 [Yy,Xx] = meshgrid(y,x);
 THETA = atan2(Xx,Yy);
 THETA = flipud(fliplr(flipud(THETA)));
@@ -169,13 +169,13 @@ THRESH = THRESH';
 % VISUALIZE
 figure('Color','w','Units','normalized','Position',[0 0 1 1]);
 subplot(131);
-imagesc(xa2,ya2,PER');
+imagesc(xa,ya,PER');
 colorbar;
 axis equal tight off
 title('PER');
 
 subplot(132);
-imagesc(xa2,ya2,THETA');
+imagesc(xa,ya,THETA');
 colorbar;
 axis equal tight off
 title('THETA');
