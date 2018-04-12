@@ -15,7 +15,7 @@ clear all;
 degrees = pi/180;
 
 % OPEN FIGURE WINDOW WITH WHITE BACKGROUND
-fig = figure('Color','w');
+fig = figure('Color','w','Units','normalized','Position',[0 0 1 1]);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% DASHBOARD
@@ -164,10 +164,10 @@ thresh = linspace(0.15,0.35,Nx2*Ny2)';
 THRESH = ones(Nx2,Ny2);
 THRESH = thresh.*THRESH(:);
 THRESH = reshape(THRESH,Nx2,Ny2);
-THRESH = flipud(THRESH);
+THRESH = THRESH';
 
 % VISUALIZE
-figure('Color','w');
+figure('Color','w','Units','normalized','Position',[0 0 1 1]);
 subplot(131);
 imagesc(xa2,ya2,PER');
 colorbar;
@@ -195,3 +195,42 @@ for n = 1 : length(gth_dat)
    % FILL FRACTION
    ff_dat(n) = sum(UCB(:))/(Nxu*Nyu);
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PROBLEM #4: GENERATE LIST OF PLANAR GRATINGS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% DECOMPOSE UNIT CELL
+ER = fftshift(fft2(UC))/(Nxu*Nyu);
+
+% DEFINE np and nq
+np = 9;
+nq = np;
+
+% TRUNCATE EXPANSION
+p0 = 1 + floor(Nxu/2);
+q0 = 1 + floor(Nyu/2);
+p1 = p0 - floor(np/2);
+p2 = p0 + floor(np/2);
+q1 = q0 - floor(nq/2);
+q2 = q0 + floor(nq/2);
+ERF = ER(p1:p2,q1:q2);
+
+% CALCULATE FOURIER AXES
+pa = [-floor(np/2) : +floor(np/2)];
+qa = [-floor(nq/2) : +floor(nq/2)];
+
+% CALCULATE GRATING VECTOR EXPANSION
+KX = 2*pi*pa/a;
+KY = 2*pi*qa/a;
+[KY,KX] = meshgrid(KY,KX);
+
+% DISPLAY TRUNCATED UNIT CELL
+figure('Color','w','Units','normalized','Position',[0 0 1 1]);
+imagesc(pa,qa,abs(ERF)');
+colorbar;
+hold on;
+quiver(pa,qa,KX',KY','Color','w');
+hold off;
+axis equal tight off
+title('PLANAR GRATING EXPANSION');
