@@ -204,7 +204,7 @@ end
 ER = fftshift(fft2(UC))/(Nxu*Nyu);
 
 % DEFINE np and nq
-np = 9;
+np = NP;
 nq = np;
 
 % TRUNCATE EXPANSION
