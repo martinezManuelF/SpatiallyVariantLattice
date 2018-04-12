@@ -234,3 +234,19 @@ quiver(pa,qa,KX',KY','Color','w');
 hold off;
 axis equal tight off
 title('PLANAR GRATING EXPANSION');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PROBLEM #5: GENERATE SPATIALLY VARIANT LATTICES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% DEFINE SWITCH VARIABLES
+LATTICE = 1;
+
+% DEFINE INPUTS
+switch LATTICE
+    % Lattice 1: Uniform Lattice
+    case 1
+        PER     = a*ones(Nx2,Ny2);
+        THETA   = 0*degrees*ones(Nx2,Ny2);
+        THRESH  = 0.3*ones(Nx2,Ny2);     
+end
