@@ -33,7 +33,7 @@ NRESLO = 10;
 NRESHI = 10;
 
 % SVL PARAMETERS
-NP = 21;
+NP = 9;
 NQ = NP;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -157,7 +157,7 @@ x = [1 : Nx]*dx;
 y = [1 : Ny]*dy;
 [Yy,Xx] = meshgrid(y,x);
 THETA = atan2(Yy,Xx);
-% THETA = fliplr(THETA/degrees);
+THETA = THETA/degrees;
 
 % THRESHOLD
 thresh = linspace(0.15,0.35,Nx2*Ny2)';
@@ -172,19 +172,19 @@ subplot(131);
 imagesc(xa,ya,PER');
 colorbar;
 axis equal tight off
-title('PER');
+title('PER','FontSize',15);
 
 subplot(132);
-imagesc(xa,ya,THETA');
+imagesc(xa,ya,fliplr(THETA)');
 colorbar;
 axis equal tight off
-title('THETA');
+title('THETA','FontSize',15);
 
 subplot(133);
 imagesc(xa2,ya2,THRESH');
 colorbar;
 axis equal tight off
-title('THRESH');
+title('THRESH','FontSize',15);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PROBLEM #4: GENERATE LIST OF PLANAR GRATINGS
@@ -223,14 +223,14 @@ hold on;
 quiver(pa,qa,KX',KY','Color','w');
 hold off;
 axis equal tight off
-title('PLANAR GRATING EXPANSION');
+title('PLANAR GRATING EXPANSION','FontSize',15);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PROBLEM #5: GENERATE SPATIALLY VARIANT LATTICES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % DEFINE SWITCH VARIABLES
-LATTICE = 5;
+LATTICE = 1;
 
 % DEFINE INPUTS
 switch LATTICE
@@ -326,7 +326,7 @@ set(ha,'YDir','normal');
 axis equal tight;
 colormap('Jet');
 colorbar;
-title('ANALOG LATTICE');
+title('ANALOG LATTICE','FontSize',15);
 
 subplot(122);
 ha = imagesc(xa2,ya2,SVLB');
@@ -334,4 +334,4 @@ ha = get(ha,'Parent');
 set(ha,'YDir','normal');
 axis equal tight;
 colorbar;
-title('BINARY LATTICE');
+title('BINARY LATTICE','FontSize',15);
