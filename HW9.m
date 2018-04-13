@@ -15,7 +15,7 @@ clear all;
 degrees = pi/180;
 
 % OPEN FIGURE WINDOW WITH WHITE BACKGROUND
-fig = figure('Color','w','Units','normalized','Position',[0 0 1 1]);
+fig = figure('Color','w');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% DASHBOARD
@@ -81,6 +81,7 @@ UC = min(D1,D2);
 UC = min(UC,D3);
 UC = UC - min(UC(:));
 UC = UC / max(UC(:));
+UC = 1 - UC;
 
 % DISPLAY UNIT CELL
 ha = imagesc(xah,yah,UC');
@@ -152,12 +153,11 @@ PER = RSQ <= r^2;
 PER = a*(1-PER) + 0.5*a*PER;
 
 % ANGLE
-x = [0 : Nx-1]*dx;
-y = [0 : Ny-1]*dy;
+x = [1 : Nx]*dx;
+y = [1 : Ny]*dy;
 [Yy,Xx] = meshgrid(y,x);
-THETA = atan2(Xx,Yy);
-THETA = flipud(fliplr(flipud(THETA)));
-THETA = THETA/degrees;
+THETA = atan2(Yy,Xx);
+% THETA = fliplr(THETA/degrees);
 
 % THRESHOLD
 thresh = linspace(0.15,0.35,Nx2*Ny2)';
@@ -167,7 +167,7 @@ THRESH = reshape(THRESH,Nx2,Ny2);
 THRESH = THRESH';
 
 % VISUALIZE
-figure('Color','w','Units','normalized','Position',[0 0 1 1]);
+figure('Color','w');
 subplot(131);
 imagesc(xa,ya,PER');
 colorbar;
@@ -185,16 +185,6 @@ imagesc(xa2,ya2,THRESH');
 colorbar;
 axis equal tight off
 title('THRESH');
-
-gth_dat = linspace(0,1,100);
-ff_dat  = 0*gth_dat;
-for n = 1 : length(gth_dat)
-   % GENERATE BINARY UNIT CELL
-   UCB = UC > gth_dat(n);
-   
-   % FILL FRACTION
-   ff_dat(n) = sum(UCB(:))/(Nxu*Nyu);
-end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PROBLEM #4: GENERATE LIST OF PLANAR GRATINGS
@@ -226,7 +216,7 @@ KY = 2*pi*qa/a;
 [KY,KX] = meshgrid(KY,KX);
 
 % DISPLAY TRUNCATED UNIT CELL
-figure('Color','w','Units','normalized','Position',[0 0 1 1]);
+figure('Color','w');
 imagesc(pa,qa,abs(ERF)');
 colorbar;
 hold on;
@@ -240,13 +230,108 @@ title('PLANAR GRATING EXPANSION');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % DEFINE SWITCH VARIABLES
-LATTICE = 1;
+LATTICE = 5;
 
 % DEFINE INPUTS
 switch LATTICE
     % Lattice 1: Uniform Lattice
     case 1
-        PER     = a*ones(Nx2,Ny2);
-        THETA   = 0*degrees*ones(Nx2,Ny2);
-        THRESH  = 0.3*ones(Nx2,Ny2);     
+        PER     = a*ones(Nx,Ny);
+        THETA   = 0*degrees*ones(Nx,Ny);
+        THRESH  = 0.3*ones(Nx2,Ny2); 
+    % Lattice 2: Spatially Variant Threshold
+    case 2
+        PER     = a*ones(Nx,Ny);
+        THETA   = 0*degrees*ones(Nx,Ny);
+        THRESH  = THRESH;
+    % Lattice 3: Spatially Variant Period
+    case 3
+        PER     = PER;
+        THETA   = 0*degrees*ones(Nx,Ny);
+        THRESH  = 0.3*ones(Nx2,Ny2);
+    % Lattice 4: Spatially Variant Orientation
+    case 4
+        PER     = a*ones(Nx,Ny);
+        THETA   = THETA;
+        THRESH  = 0.3*ones(Nx2,Ny2);
+    % Lattice 5: Spatially Vary Everything
+    case 5
+        PER     = PER;
+        THETA   = THETA;
+        THRESH  = THRESH;
+    otherwise
+        error('Please enter a lattice 1-5');
 end
+
+% GENERATE LIST OF PLANAR GRATINGS
+KLIST = [ KX(:)' ; KY(:)' ];
+CLIST = ERF(:);
+
+% INITIALIZE COUNTER AND SVL ARRAY
+NK  = length(CLIST);
+SVL = zeros(Nx2,Ny2);
+
+% CONSTRUCT DERIVATIVE OPERATORS
+NS  = [Nx Ny];
+RES = [dx dy];
+BC  = [+1 +1];
+[DX,~,DY,~] =  fdder(NS,RES,BC);
+A = [DX ; DY];
+    
+%
+% MAIN LOOP
+%
+for nk = 1 : NK
+   
+    % GENERATE K-FUNCTION
+    Kx = KLIST(1,nk);
+    Ky = KLIST(2,nk);
+    [theta,r] = cart2pol(Kx,Ky);
+    [Kx,Ky] = pol2cart(theta+THETA,r*a./PER);
+    
+    % CONSTRUCT MATRIX EQUATION
+    b = [Kx(:) ; Ky(:)];
+    
+    % SOLVE BY LEAST SQUARES
+    b   = A.'*b;
+    Ap  = A.'*A;
+    PHI = Ap\b;
+    
+    % RESHAPE TO 2D GRID
+    PHI = reshape(PHI,Nx,Ny);
+    
+    % INTERPOLATE TO HI-RES GRID
+    PHI = interp2(ya,xa',PHI,ya2,xa2');
+    
+    % CALCULATE ANALOG GRATING
+    Epq = CLIST(nk)*exp(1i*PHI);
+    
+    % ADD CURRENT GRATING TO OVERAL LATTICE
+    SVL = SVL + Epq;
+    
+end
+
+% CLEAN-UP NUMERICAL NOISE
+SVL = real(SVL);
+
+% CREATE BINARY LATTICE
+SVLB = SVL < THRESH;
+
+% DISPLAY ANALOG GRATING
+figure('Color','w');
+subplot(121);
+ha = imagesc(xa2,ya2,SVL');
+ha = get(ha,'Parent');
+set(ha,'YDir','normal');
+axis equal tight;
+colormap('Jet');
+colorbar;
+title('ANALOG LATTICE');
+
+subplot(122);
+ha = imagesc(xa2,ya2,SVLB');
+ha = get(ha,'Parent');
+set(ha,'YDir','normal');
+axis equal tight;
+colorbar;
+title('BINARY LATTICE');
